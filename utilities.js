@@ -8,17 +8,17 @@ const axios = require('axios'),
 
 const filter = data => {
   return(
-      (data.current.stage_id === 11 ||
-      data.current.stage_id === 11) &&
+      (data.current.stage_id === 6  || //=== 11 ||
+      data.current.stage_id === 8) && //=== 11) &&
       data.current[TICKET_FIELD_HASH] !== null && 
-      (data.previous.stage_id !== 11 ||
-      data.previous.stage_id !== 13)
+      (data.previous.stage_id !== 6 || // !== 11 
+      data.previous.stage_id !== 8) // !== 13)
     )
     ||
     (
-      data.current.stage_id === 10 &&
+      data.current.stage_id === 2 && // === 10 &&
       data.current[TICKET_FIELD_HASH] !== null && 
-      data.previous.stage_id>10
+      data.previous.stage_id < 2 //  > 10
     )
   }
 
