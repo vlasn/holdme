@@ -18,7 +18,7 @@ const filter = data => {
     (
       data.current.stage_id === 2 && // === 10 &&
       data.current[TICKET_FIELD_HASH] !== null && 
-      data.previous.stage_id < 2 //  > 10
+      data.previous.stage_id > 2 //  > 10
     )
   }
 
