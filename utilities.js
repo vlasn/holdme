@@ -8,21 +8,21 @@ const axios = require('axios'),
 
 const filter = data => {
   return(
-      (data.current.stage_id === 6  || //=== 11 ||
-      data.current.stage_id === 8) && //=== 11) &&
-      data.current[TICKET_FIELD_HASH] !== null && 
-      (data.previous.stage_id !== 6 || // !== 11 
-      data.previous.stage_id !== 8) // !== 13)
+      (data.current.stage_id === 6  ||
+      data.current.stage_id === 8) &&
+      data.current[TICKET_FIELD_HASH] !== null &&
+      (data.previous.stage_id !== 6 &&
+      data.previous.stage_id !== 8)
     )
     ||
     (
-      data.current.stage_id === 2 && // === 10 &&
-      data.current[TICKET_FIELD_HASH] !== null && 
-      data.previous.stage_id > 2 //  > 10
+      data.current.stage_id === 2 &&
+      data.current[TICKET_FIELD_HASH] !== null &&
+      data.previous.stage_id > 6
     )
   }
 
-const greeting = ({current}) => current.stage_id>=11 ? 'On Hold' : 'In progress' // "calculate" new status based on stage ID
+const greeting = ({current}) => current.stage_id >= 6 ? 'On Hold' : 'In progress' // "calculate" new status based on stage ID
 const getSlackUsername = personId => axios.get(
   `https://api.pipedrive.com/v1/persons/${personId}?api_token=${API_TOKEN}`
 )
