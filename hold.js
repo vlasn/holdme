@@ -6,14 +6,19 @@ let app = express()
 app.use(bodyParser.json())
 
 const { 
-    buildMessage, postToSlack, getSlackUsername ,ensureAt, greeting, filter 
+    buildMessage, postToSlack, getSlackUsername ,ensureAt, greeting, filter, postToMonitoring
 } = require("./utilities")
 
 app.post("/hold", (req, res) => {
     if(filter(req.body)) {
+        let nick = ''
     getSlackUsername(req.body.current.person_id)
         .then(({data})=>ensureAt(data.data[SLACK_FIELD_HASH]))
-        .then(slackname => postToSlack(slackname, buildMessage(slackname, req.body.current.title, greeting(req.body)), req.body))
+        .then(slackname => {
+            nick = slackname
+            return postToSlack(slackname, buildMessage(slackname, req.body.current.title, greeting(req.body)), req.body)
+        })
+        .then(()=>postToMonitoring(nick,req.body))
         .then(response=>console.log(response.data))
         .then(res.status(200).json("Thanks!"))
         .catch(console.log)

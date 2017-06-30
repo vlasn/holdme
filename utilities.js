@@ -31,7 +31,10 @@ const ensureAt = (nick) => nick.substring(0,1) ==='@' ? nick : '@'+nick
 const postToSlack = (nick, message='hi', body) => {
   return axios.post(WEBHOOK_URL, {
     channel: nick,
-    text: message + " \n Comment:",
+    text: `
+*${body.current.owner_name} has updated your ticket <${body.current[TICKET_FIELD_HASH]}|${body.current.title}>!*
+The new status is _${greeting(body)}_!
+Comment:`,
     attachments: [
       {
         color: '#000000',
@@ -40,7 +43,26 @@ const postToSlack = (nick, message='hi', body) => {
     ]
   })
 }
+const postToMonitoring = (nick, body) => {
+  return axios.post(WEBHOOK_URL, {
+    channel: process.env.MONITORING_CHANNEL_NAME,
+    text: `
+*${body.current.owner_name} updated  <${body.current[TICKET_FIELD_HASH]}|${body.current.title}>!*
+The new status is _${greeting(body)}_!
+Comment:`,
+    attachments: [
+      {
+        color: '#000000',
+        text: body.current[COMMENT_FIELD_HASH]
+      },
+      {
+        color: '#fafafa',
+        text: `Ticket id ${body.current.id}`
+      }
+    ]
+  })
+}
 
 let buildMessage = (name,title,status) => `Hi ${name}! Your ticket '${title}' has a new status: \n *${status}*`
 
-module.exports = { buildMessage, postToSlack, getSlackUsername,ensureAt, greeting, filter }
+module.exports = { buildMessage, postToSlack, getSlackUsername,ensureAt, greeting, filter, postToMonitoring }
