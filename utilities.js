@@ -18,7 +18,7 @@ const filter = data => {
     (
       data.current.stage_id === 2 &&
       data.current[TICKET_FIELD_HASH] !== null &&
-      data.previous.stage_id > 6
+      data.previous.stage_id >= 6
     )
   }
 
@@ -57,7 +57,7 @@ Comment:`,
       },
       {
         color: '#fafafa',
-        text: `Ticket id ${body.current.id}`
+        text: `<https://app.pipedrive.com/deal/${body.current.id}|Ticket id ${body.current.id}>`
       }
     ]
   })
