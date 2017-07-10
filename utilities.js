@@ -26,6 +26,11 @@ const greeting = ({current}) => current.stage_id >= 6 ? 'On Hold' : 'In progress
 const getSlackUsername = personId => axios.get(
   `https://api.pipedrive.com/v1/persons/${personId}?api_token=${API_TOKEN}`
 )
+const commentBuilder = ({current}) => (current.stage_id == 8 ?
+  `Your case has been sent to the Nylas team and might take up to 24h to be resolved. 
+Please enjoy some :coffee: & :kringel: while you wait.` :
+  current[COMMENT_FIELD_HASH] 
+)
 
 const ensureAt = (nick) => nick.substring(0,1) ==='@' ? nick : '@'+nick
 const postToSlack = (nick, message='hi', body) => {
@@ -38,7 +43,7 @@ Comment:`,
     attachments: [
       {
         color: '#000000',
-        text: body.current[COMMENT_FIELD_HASH]
+        text: commentBuilder(body)
       }
     ]
   })
