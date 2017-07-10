@@ -6,7 +6,7 @@ const axios = require('axios'),
     COMMENT_FIELD_HASH = process.env.COMMENT_FIELD_HASH
     WEBHOOK_URL = process.env.WEBHOOK_URL
 
-const filter = data => {
+const filter = (data) => {
   return(
       (data.current.stage_id === 6  ||
       data.current.stage_id === 8) &&
@@ -20,15 +20,30 @@ const filter = data => {
       data.current[TICKET_FIELD_HASH] !== null &&
       data.previous.stage_id >= 6
     )
-  }
+}
 
-const greeting = ({current}) => current.stage_id >= 6 ? 'On Hold' : 'In progress' // "calculate" new status based on stage ID
-const getSlackUsername = personId => axios.get(
+//Build message title
+let buildMessage = (name,title,status) => `Hi ${name}! Your ticket '${title}' has a new status: \n *${status}*`
+
+// new status based on stage ID
+const greeting = ({current}) => current.stage_id >= 6 ? 'On Hold' : 'In progress' 
+
+//Gets person from Pipedrive
+const getPerson = personId => axios.get(
   `https://api.pipedrive.com/v1/persons/${personId}?api_token=${API_TOKEN}`
 )
 
+//Return specific custom field value or a template string for email-related hold
+const buildComment = ({current}) => (current.stage_id === 8 ?
+  `Your case has been sent to the Nylas team and might take up to 24h to be resolved. 
+Please enjoy some :coffee: & :kringel: while you wait.` :
+  current[COMMENT_FIELD_HASH] 
+)
+//Normalize Slack username
 const ensureAt = (nick) => nick.substring(0,1) ==='@' ? nick : '@'+nick
-const postToSlack = (nick, message='hi', body) => {
+
+//Send message to the person that the ticket is from
+const postToSlack = (nick, message='hi', body) => { 
   return axios.post(WEBHOOK_URL, {
     channel: nick,
     text: `
@@ -38,12 +53,14 @@ Comment:`,
     attachments: [
       {
         color: '#000000',
-        text: body.current[COMMENT_FIELD_HASH]
+        text: buildComment(body)
       }
     ]
   })
 }
-const postToMonitoring = (nick, body) => {
+
+//..And to the monitoring channel
+const postToMonitoring = (nick, body) => { 
   return axios.post(WEBHOOK_URL, {
     channel: process.env.MONITORING_CHANNEL_NAME,
     text: `
@@ -63,6 +80,4 @@ Comment:`,
   })
 }
 
-let buildMessage = (name,title,status) => `Hi ${name}! Your ticket '${title}' has a new status: \n *${status}*`
-
-module.exports = { buildMessage, postToSlack, getSlackUsername,ensureAt, greeting, filter, postToMonitoring }
+module.exports = { buildMessage, postToSlack, getPerson, ensureAt, greeting, filter, postToMonitoring }
