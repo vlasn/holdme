@@ -3,7 +3,7 @@ HOLDME:
 Super simple webhook listener that yells at people in Slack on deal updates that meet filter criteria.
 
 Used tech:
-Javascript :rainbow:,
+Javascript,
 Node 7+
 
 usage:
