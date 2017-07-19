@@ -1,4 +1,3 @@
-require('dotenv').config()
 const axios = require('axios'),
     API_TOKEN = process.env.API_TOKEN,
     TICKET_FIELD_HASH = process.env.TICKET_FIELD_HASH
@@ -27,6 +26,7 @@ let buildMessage = (name,title,status) => `Hi ${name}! Your ticket '${title}' ha
 
 // new status based on stage ID
 const greeting = ({current}) => current.stage_id >= 6 ? 'On Hold' : 'In progress' 
+const status = ({stage_id}) => stage_id > 6 ? "Nylas hold" : stage_id === 6 ? "On hold" : "In progress"
 
 //Gets person from Pipedrive
 const getPerson = personId => axios.get(
@@ -48,7 +48,7 @@ const postToSlack = (nick, message='hi', body) => {
     channel: nick,
     text: `
 *${body.current.owner_name} has updated your ticket <${body.current[TICKET_FIELD_HASH]}|${body.current.title}>!*
-The new status is _${greeting(body)}_!
+The new status is _${status(body.current)}_!
 Comment:`,
     attachments: [
       {
@@ -65,7 +65,7 @@ const postToMonitoring = (nick, body) => {
     channel: process.env.MONITORING_CHANNEL_NAME,
     text: `
 *${body.current.owner_name} updated  <${body.current[TICKET_FIELD_HASH]}|${body.current.title}>!*
-The new status is _${greeting(body)}_!
+The new status is _${status(body.current)}_!
 Comment:`,
     attachments: [
       {
@@ -79,5 +79,7 @@ Comment:`,
     ]
   })
 }
-
-module.exports = { buildMessage, postToSlack, getPerson, ensureAt, greeting, filter, postToMonitoring }
+const loggo = ({current}) => {
+  console.log(`Change: deal ${current.id} | at ${new Date().toLocaleString()}`)
+}
+module.exports = { buildMessage, postToSlack, getPerson, ensureAt, status, filter, postToMonitoring, loggo }
