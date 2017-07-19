@@ -21,7 +21,7 @@ const post = function(current, status) {
     comment: {body: contentTemplate, public: false},
     status: 'pending'
   })
-    .then(()=>console.log("n posted comment to ticket "+ticketId))
+    .then(()=>console.log("Posted comment to ZD ticket "+ticketId))
     .catch(console.log)
 }
 
